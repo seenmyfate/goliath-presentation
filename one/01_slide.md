@@ -19,14 +19,13 @@ _an open source non-blocking asynchronous Ruby web server framework_
   * an EventMachine reactor
   * a high-performance HTTP parser
   * Rack
-  * Ruby 1.9 runtime
+  * Ruby 1.9 runtime (MRI, JRuby Rubinius)
 
 !SLIDE bullets incremental
-# With fibers goodness
+# High fibers
 
   * Each HTTP request within Goliath is executed in its own Ruby fiber
 * all asynchronous I/O operations can suspend and resume without additional code
-
 
 !SLIDE  
 # Hello, world
@@ -39,7 +38,7 @@ _an open source non-blocking asynchronous Ruby web server framework_
       @@@ ruby
       class HelloWorld < Goliath::API
         def response(env)
-          [200, {}, "hello world"]
+          [200, {}, "Hello, world"]
         end
       end
 
@@ -49,16 +48,16 @@ _an open source non-blocking asynchronous Ruby web server framework_
     $ ruby hello_world.rb -sv
 
 !SLIDE incremental
-# A demo
-## Read Later
+# Read Later
+## A demo
 
 * Single Endpoint
 * Fire and forget
-* Store a url 
 * Validate params are correct
+* Store a url
 
 !SLIDE commandline incremental
-# Project Structure 
+# Tree 
 
     $    .
         ├── Gemfile
@@ -85,10 +84,12 @@ _an open source non-blocking asynchronous Ruby web server framework_
 # spec/read\_later\_spec.rb
       
       @@@ ruby
-        with_api ReadLater do
-          get_request(query: {url: '/test'}) do |request|
-            response = Yajl::Parser.parse(request.response)
-            response.should eq 'OK'
+        it 'returns OK' do
+          with_api ReadLater do
+            get_request(query: {url: '/test'}) do |request|
+              response = Yajl::Parser.parse(request.response)
+              response.should eq 'OK'
+            end
           end
         end
 
@@ -105,7 +106,7 @@ _an open source non-blocking asynchronous Ruby web server framework_
 !SLIDE smaller
 # read_later.rb
     @@@ ruby
-    class Realtime < Goliath::API
+    class ReadLater < Goliath::API
       
       use Goliath::Rack::Params
       use Goliath::Rack::DefaultMimeType
@@ -123,10 +124,12 @@ _an open source non-blocking asynchronous Ruby web server framework_
 # spec/read_later.rb
 
     @@@ ruby
-    with_api ReadLater do
-      get_request(query: {}) do |request|
-        response = Yajl::Parser.parse(request.response)
-        response['error'].should eq 'Url identifier missing'
+    it "returns an error" do
+      with_api ReadLater do
+        get_request(query: {}) do |request|
+          response = Yajl::Parser.parse(request.response)
+          response['error'].should eq 'Url identifier missing'
+        end
       end
     end
 
@@ -141,6 +144,7 @@ _an open source non-blocking asynchronous Ruby web server framework_
 ## and that's it!
 
 * github.com/postrank-labs/goliath
+* igvita.com/
 * github.com/seenmyfate/read_later
 
 
